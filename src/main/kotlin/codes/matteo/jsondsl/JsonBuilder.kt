@@ -6,21 +6,21 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 
 sealed class JsonDslNode {
-    abstract fun toJacksonNode(): JsonNode
+    abstract fun asTree(): JsonNode
 
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is JsonDslNode -> toJacksonNode() == other.toJacksonNode()
+            is JsonDslNode -> asTree() == other.asTree()
             else -> false
         }
     }
 
-    override fun toString(): String = toJacksonNode().toString()
+    override fun toString(): String = asTree().toString()
 
-    override fun hashCode(): Int = toJacksonNode().hashCode()
+    override fun hashCode(): Int = asTree().hashCode()
 }
 
-class JsonArray : JsonDslNode() {
+class JsonDslArray : JsonDslNode() {
     private val node = JsonNodeFactory.instance.arrayNode()
 
     fun elem(v: String) = node.add(v)
@@ -29,15 +29,15 @@ class JsonArray : JsonDslNode() {
 
     fun elem(v: Long) = node.add(v)
 
-    fun elem(v: JsonDslNode) = node.add(v.toJacksonNode())
+    fun elem(v: JsonDslNode) = node.add(v.asTree())
 
-    override fun toJacksonNode(): JsonNode = node
+    override fun asTree(): JsonNode = node
 }
 
-class JsonObject : JsonDslNode() {
+class JsonDslObject : JsonDslNode() {
     private val node = JsonNodeFactory.instance.objectNode()
 
-    override fun toJacksonNode(): JsonNode = node
+    override fun asTree(): JsonNode = node
 
     operator fun String.divAssign(v: String) {
         node.put(this, v)
@@ -52,7 +52,7 @@ class JsonObject : JsonDslNode() {
     }
 
     operator fun String.divAssign(v: JsonDslNode) {
-        node.set(this, v.toJacksonNode())
+        node.set(this, v.asTree())
     }
 
     operator fun String.divAssign(v: Array<String>) {
@@ -72,34 +72,34 @@ class JsonObject : JsonDslNode() {
 
     operator fun String.divAssign(v: Array<JsonDslNode>) {
         val arr = node.putArray(this)
-        v.forEach { arr.add(it.toJacksonNode()) }
+        v.forEach { arr.add(it.asTree()) }
     }
 }
 
-fun jsObj(init: JsonObject.() -> Unit): JsonDslNode {
-    val obj = JsonObject()
+fun jsObject(init: JsonDslObject.() -> Unit): JsonDslNode {
+    val obj = JsonDslObject()
     obj.init()
     return obj
 }
 
-fun jsArray(init: JsonArray.() -> Unit): JsonDslNode {
-    val arr = JsonArray()
+fun jsArray(init: JsonDslArray.() -> Unit): JsonDslNode {
+    val arr = JsonDslArray()
     arr.init()
     return arr
 }
 
 fun main(args: Array<String>) {
-    val obj = jsObj {
-        "metadata" /= jsObj {
+    val obj = jsObject {
+        "metadata" /= jsObject {
             "version" /= "1"
-            "something_nested" /= jsObj {
-                "foo" /= jsObj {
+            "something_nested" /= jsObject {
+                "foo" /= jsObject {
                     "bar" /= Long.MAX_VALUE
                 }
             }
         }
 
-        "object_array" /= arrayOf(jsObj { "a" /= 1 }, jsObj { "b" /= 1 })
+        "object_array" /= arrayOf(jsObject { "a" /= 1 }, jsObject { "b" /= 1 })
 
         "string_array" /= arrayOf("a", "b", "c")
         "nested_jsarrays" /= arrayOf(jsArray { elem(1) }, jsArray { elem(2); elem(3) })
@@ -107,11 +107,11 @@ fun main(args: Array<String>) {
         "mixed_types" /= jsArray {
             elem("a")
             elem(2)
-            elem(jsObj { "x" /= "y" })
+            elem(jsObject { "x" /= "y" })
         }
     }
 
     val om = ObjectMapper()
     om.enable(SerializationFeature.INDENT_OUTPUT)
-    println(om.writeValueAsString(obj.toJacksonNode()))
+    println(om.writeValueAsString(obj.asTree()))
 }
