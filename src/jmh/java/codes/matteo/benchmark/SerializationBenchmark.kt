@@ -6,9 +6,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.infra.Blackhole
 
-val fistNames = arrayOf("Joan", "James", "John", "Judy", "Jean", "Xavier")
-val lastNames = arrayOf("Dench", "Dame", "Douglass", "DeSantis", "David", "Jones")
-val ages = arrayOf(20, 21, 22, 23, 24, 25)
+val firstName = "Joan"
+val lastName = "Of Arc"
+
 val objectMapper = ObjectMapper().registerModule(KotlinModule())
 
 data class Tag(val name: String)
@@ -29,9 +29,9 @@ open class BenchKotlin {
                 ]
               },
               "data": {
-                "age": ${0},
-                "first_name": "${fistNames[0]}",
-                "last_name": "${lastNames[0]}"
+                "age": ${15},
+                "first_name": "$firstName",
+                "last_name": "$lastName"
               }
             }""".trimIndent()
         blackhole.consume(doc.toByteArray(Charsets.UTF_8))
@@ -48,9 +48,9 @@ open class BenchKotlin {
                         )
                 ),
                 "data" to mapOf(
-                        "age" to 0,
-                        "first_name" to fistNames[0],
-                        "last_name" to lastNames[0]
+                        "age" to 15,
+                        "first_name" to firstName,
+                        "last_name" to lastName
                 )
         )
 
@@ -66,9 +66,9 @@ open class BenchKotlin {
         meta.putArray("tags")
                 .add(nf.objectNode().put("name", "foo"))
                 .add(nf.objectNode().put("name", "bar"))
-        root.putObject("data").put("age", 0)
-                .put("first_name", fistNames[0])
-                .put("last_name", lastNames[0])
+        root.putObject("data").put("age", 15)
+                .put("first_name", firstName)
+                .put("last_name", lastName)
         blackhole.consume(objectMapper.writeValueAsBytes(root))
     }
 
@@ -76,7 +76,7 @@ open class BenchKotlin {
     fun dataClass(blackhole: Blackhole) {
         val doc = Wrapper(
                 Meta(1, arrayOf(Tag("foo"), Tag("bar"))),
-                Person(fistNames[0], lastNames[0], 0)
+                Person(firstName, lastName, 15)
         )
         blackhole.consume(objectMapper.writeValueAsBytes(doc))
     }
@@ -92,9 +92,9 @@ open class BenchKotlin {
                 )
             }
             "data" /= jsObject {
-                "age" /= 0
-                "fist_name" /= fistNames[0]
-                "last_name" /= lastNames[0]
+                "age" /= 15
+                "fist_name" /= firstName
+                "last_name" /= lastName
             }
         }
 

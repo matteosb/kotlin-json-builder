@@ -23,6 +23,7 @@ repositories {
 }
 
 apply plugin: "kotlin"
+apply plugin: "java"
 apply plugin: "me.champeau.gradle.jmh"
 
 dependencies {
@@ -30,6 +31,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:1.1.61"
     compile "com.fasterxml.jackson.core:jackson-core:2.9.2"
     compile "com.fasterxml.jackson.core:jackson-databind:2.9.2"
+    testCompile 'junit:junit:4.12'
+
     jmh("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2") {
         exclude group: "org.jetbrains.kotlin"
     }

@@ -1,16 +1,14 @@
 package codes.matteo.jsondsl
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 
-sealed class JsonDslNode {
+sealed class JsonBuilderNode {
     abstract fun asTree(): JsonNode
 
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is JsonDslNode -> asTree() == other.asTree()
+            is JsonBuilderNode -> asTree() == other.asTree()
             else -> false
         }
     }
@@ -20,7 +18,7 @@ sealed class JsonDslNode {
     override fun hashCode(): Int = asTree().hashCode()
 }
 
-class JsonDslArray : JsonDslNode() {
+class JsonBuilderArray : JsonBuilderNode() {
     private val node = JsonNodeFactory.instance.arrayNode()
 
     fun elem(v: String) = node.add(v)
@@ -29,12 +27,12 @@ class JsonDslArray : JsonDslNode() {
 
     fun elem(v: Long) = node.add(v)
 
-    fun elem(v: JsonDslNode) = node.add(v.asTree())
+    fun elem(v: JsonBuilderNode) = node.add(v.asTree())
 
     override fun asTree(): JsonNode = node
 }
 
-class JsonDslObject : JsonDslNode() {
+class JsonBuilderObject : JsonBuilderNode() {
     private val node = JsonNodeFactory.instance.objectNode()
 
     override fun asTree(): JsonNode = node
@@ -51,7 +49,7 @@ class JsonDslObject : JsonDslNode() {
         node.put(this, v)
     }
 
-    operator fun String.divAssign(v: JsonDslNode) {
+    operator fun String.divAssign(v: JsonBuilderNode) {
         node.set(this, v.asTree())
     }
 
@@ -70,48 +68,20 @@ class JsonDslObject : JsonDslNode() {
         v.forEach { arr.add(it) }
     }
 
-    operator fun String.divAssign(v: Array<JsonDslNode>) {
+    operator fun String.divAssign(v: Array<JsonBuilderNode>) {
         val arr = node.putArray(this)
         v.forEach { arr.add(it.asTree()) }
     }
 }
 
-fun jsObject(init: JsonDslObject.() -> Unit): JsonDslNode {
-    val obj = JsonDslObject()
+fun jsObject(init: JsonBuilderObject.() -> Unit): JsonBuilderNode {
+    val obj = JsonBuilderObject()
     obj.init()
     return obj
 }
 
-fun jsArray(init: JsonDslArray.() -> Unit): JsonDslNode {
-    val arr = JsonDslArray()
+fun jsArray(init: JsonBuilderArray.() -> Unit): JsonBuilderNode {
+    val arr = JsonBuilderArray()
     arr.init()
     return arr
-}
-
-fun main(args: Array<String>) {
-    val obj = jsObject {
-        "metadata" /= jsObject {
-            "version" /= "1"
-            "something_nested" /= jsObject {
-                "foo" /= jsObject {
-                    "bar" /= Long.MAX_VALUE
-                }
-            }
-        }
-
-        "object_array" /= arrayOf(jsObject { "a" /= 1 }, jsObject { "b" /= 1 })
-
-        "string_array" /= arrayOf("a", "b", "c")
-        "nested_jsarrays" /= arrayOf(jsArray { elem(1) }, jsArray { elem(2); elem(3) })
-        "deeply_arrays_need" /= jsArray { elem(jsArray { elem(jsArray { elem(1) }) }) }
-        "mixed_types" /= jsArray {
-            elem("a")
-            elem(2)
-            elem(jsObject { "x" /= "y" })
-        }
-    }
-
-    val om = ObjectMapper()
-    om.enable(SerializationFeature.INDENT_OUTPUT)
-    println(om.writeValueAsString(obj.asTree()))
 }
