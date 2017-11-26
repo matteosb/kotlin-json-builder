@@ -4,14 +4,15 @@ A reasonably fast, reasonably elegant Kotlin typesafe builder for Jackson JSON o
 
 ## Usage
 
-The DSL provides two methods: `jsObject` and `jsArray` which work with another and basic Kotlin types:
-`String`, `Int`, `Long`, as well as Kotlin `Arrays` of those types. The DSL errs on the side of type
- safety and thus doesn't allow potentially un-serializable objects to be created.
- Using `Array` is preferable over `jsArray` unless you need deeply nested arrays
- or mixed type arrays.
+The DSL provides two functions: `jsObject` and `jsArray`. In addition to `jsObject` and `jsArray`, basic Kotlin types are
+supported: `String`, `Int`, `Long` and Kotlin `Array`s of those types.
+The DSL errs on the side of typesafety and doesn't allow potentially un-serializable objects to be created. Using `Array`
+is preferable over `jsArray` unless you need deeply nested arrays or mixed type arrays.
 
-`jsObject` provides the `/=` operator to associate string keys to values
-`jsArray` provides the `elem` method to add elements. That's it! Here is an example:
+* `jsObject` provides the `/=` operator to associate string keys to values
+* `jsArray` provides the `elem` method to add elements. 
+
+That's it! Here is an example:
 
 ```kotlin
 val obj = jsObject {
@@ -42,7 +43,7 @@ val serialized = ObjectMapper().writeValueAsString(obj.asTree())
 
 This project includes basic JMH benchmarks for serialization.
 These compare using the DSL to data class databinding and various methods of
-constructing dynamic JSON objects. The aim is to ensure that the DSL performance stays in
+constructing dynamic JSON objects. The aim is to ensure that DSL performance stays in
 the same ballpark as databinding and hand-written Jackson ObjectNode code. 
 
 
