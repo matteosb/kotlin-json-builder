@@ -2,8 +2,6 @@ group = "codes.matteo"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    // ext.kotlin_version = "1.1.61"
-
     repositories {
         mavenCentral()
         maven {
@@ -12,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.61"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.21"
         classpath("me.champeau.gradle:jmh-gradle-plugin:0.4.4")
     }
 }
@@ -27,13 +25,13 @@ apply plugin: "java"
 apply plugin: "me.champeau.gradle.jmh"
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:1.1.61"
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.1.61"
-    compile "com.fasterxml.jackson.core:jackson-core:2.9.2"
-    compile "com.fasterxml.jackson.core:jackson-databind:2.9.2"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.21"
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.21"
+    compile "com.fasterxml.jackson.core:jackson-core:2.9.4"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.9.4"
     testCompile 'junit:junit:4.12'
 
-    jmh("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2") {
+    jmh("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.4") {
         exclude group: "org.jetbrains.kotlin"
     }
     jmh group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.19'
@@ -60,4 +58,14 @@ jmh {
     warmupIterations = 10
     iterations = 10
     zip64 = false
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
