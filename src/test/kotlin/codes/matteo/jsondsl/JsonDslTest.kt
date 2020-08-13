@@ -16,7 +16,8 @@ class JsonDslTest {
                     "foo" /= jsObject {
                         "bar" /= Long.MAX_VALUE
                     }
-                }
+                },
+                "boolean" /= true
             }
 
             "object_array" /= arrayOf(jsObject { "a" /= 1 }, jsObject { "b" /= 1 })

@@ -27,6 +27,8 @@ class JsonBuilderArray : JsonBuilderNode() {
 
     fun elem(v: Long) = node.add(v)
 
+    fun elem(v: Boolean) = node.add(v)
+
     fun elem(v: JsonBuilderNode) = node.add(v.asTree())
 
     override fun asTree(): JsonNode = node
@@ -46,6 +48,10 @@ class JsonBuilderObject : JsonBuilderNode() {
     }
 
     operator fun String.divAssign(v: Long) {
+        node.put(this, v)
+    }
+
+    operator fun String.divAssign(v: Boolean) {
         node.put(this, v)
     }
 

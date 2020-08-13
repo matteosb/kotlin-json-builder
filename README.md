@@ -5,7 +5,7 @@ A reasonably fast, reasonably elegant Kotlin typesafe builder for Jackson JSON o
 ## Usage
 
 The DSL provides two functions: `jsObject` and `jsArray`. In addition to `jsObject` and `jsArray`, basic Kotlin types are
-supported: `String`, `Int`, `Long` and Kotlin `Array`s of those types.
+supported: `Boolean`, `String`, `Int`, `Long` and Kotlin `Array`s of those types.
 The DSL errs on the side of typesafety and doesn't allow potentially un-serializable objects to be created. Using `Array`
 is preferable over `jsArray` unless you need deeply nested arrays or mixed type arrays.
 
